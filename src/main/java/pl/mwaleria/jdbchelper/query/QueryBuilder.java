@@ -11,11 +11,15 @@ public class QueryBuilder {
             return "";
         }
         sb.append("WHERE ");
+        int index = 0;
         for(Criteria criteria : criterias) {
+            index++;
             sb.append(criteria.getColumn());
             sb.append(criteria.getCriteriaType().getSign());
-            sb.append(":");
-            sb.append(criteria.getColumn());
+            sb.append("? ");
+            if(index < criterias.length) {
+                sb.append("AND ");
+            }
         }
         return sb.toString();
     }

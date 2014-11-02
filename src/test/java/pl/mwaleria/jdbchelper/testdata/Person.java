@@ -1,4 +1,4 @@
-package pl.mwaleria.jdbchelper;
+package pl.mwaleria.jdbchelper.testdata;
 
 import pl.mwaleria.jdbchelper.types.Column;
 import pl.mwaleria.jdbchelper.types.Entity;

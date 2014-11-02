@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+    <PERSONS id="1" FIRST_NAME="John" LAST_NAME="Doe"/>
+    <PERSONS id="2" FIRST_NAME="Emmy" LAST_NAME="Doe"/>
+    <PERSONS id="3" FIRST_NAME="Clint" LAST_NAME="Doe"/>
+    <PERSONS id="4" FIRST_NAME="Anna" LAST_NAME="Smith"/>
+    <PERSONS id="5" FIRST_NAME="Doroty" LAST_NAME="Smith"/>
+    <PERSONS id="6" FIRST_NAME="Susan" LAST_NAME="Smith"/>
+
+</dataset>

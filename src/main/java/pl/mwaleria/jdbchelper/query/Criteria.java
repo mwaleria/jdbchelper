@@ -14,6 +14,7 @@ public class Criteria {
         this.criteriaType = criteriaType;
         this.condition = condition;
     }
+    public Criteria() {}
 
     public String getColumn() {
         return column;
@@ -37,5 +38,10 @@ public class Criteria {
 
     public void setCondition(Object condition) {
         this.condition = condition;
+    }
+
+    @Override
+    public String toString() {
+        return "Criteria{" + column + " " + criteriaType.getSign() + " " + condition.toString() + " }";
     }
 }
