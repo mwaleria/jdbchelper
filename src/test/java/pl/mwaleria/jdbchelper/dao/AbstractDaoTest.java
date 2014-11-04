@@ -9,6 +9,7 @@ import pl.mwaleria.jdbchelper.query.CriteriaType;
 import pl.mwaleria.jdbchelper.testdata.Person;
 import pl.mwaleria.jdbchelper.testdata.PersonDao;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -72,4 +73,28 @@ public class AbstractDaoTest extends AbstractDBTest {
     public void testPrepareStatement() throws Exception {
 
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    @DataSet("emptydataset.xml")
+    public void testDeleteNullCriterias() throws SQLException {
+        Criteria[] criterias = null;
+        personDao.delete(criterias);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    @DataSet("emptydataset.xml")
+    public void testDeleteEmptyCriterias() throws SQLException {
+        Criteria[] criterias = new Criteria[0];
+        personDao.delete(criterias);
+    }
+
+    @Test
+    @DataSet("person2.xml")
+    public void testDelete() throws SQLException {
+        Criteria[] criterias = {new Criteria("LAST_NAME",CriteriaType.EQUALS,"Doe")};
+        int countOfDeletedPersons = personDao.delete(criterias);
+        assertEquals( 3,countOfDeletedPersons);
+    }
+
+
 }

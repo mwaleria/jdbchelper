@@ -87,7 +87,26 @@ public abstract class AbstractDao<T> {
         while(resultSet.next()) {
             results.add(this.parseRecord(resultSet));
         }
+        preparedStatement.close();
         return results;
+    }
+
+    public int delete(Criteria[] criterias) throws SQLException {
+        if(criterias == null || criterias.length == 0 ) {
+            throw new IllegalArgumentException("Criterias have to be non null and  no  empty array for delete method");
+        }
+
+        int countOfDeletedRecords = 0 ;
+        StringBuffer sb = new StringBuffer();
+        sb.append("DELETE FROM ");
+        sb.append(tableName);
+        sb.append(" ");
+        sb.append(QueryBuilder.buildWhereClause(criterias));
+        PreparedStatement ps = prepareStatement(sb.toString(), criterias);
+        countOfDeletedRecords =ps.executeUpdate();
+        connection.commit();
+        ps.close();
+        return countOfDeletedRecords;
     }
 
     private PreparedStatement prepareStatement(  String sql,Criteria[] criterias) throws SQLException {
