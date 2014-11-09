@@ -24,6 +24,8 @@ public abstract class AbstractDao<T> {
 
     protected String tableName;
 
+    protected QueryBuilder queryBuilder;
+
     LinkedHashMap<String,Column> columns;
 
     public AbstractDao(Class<?> entityClass, Connection connection) {
@@ -43,6 +45,7 @@ public abstract class AbstractDao<T> {
             throw new IllegalArgumentException("Class have to have pl.mwaleria.jdbchelper.types.Entity annotations");
         }
         tableName = e.tableName();
+
         columns = new LinkedHashMap<String, Column>();
         Field[] fields = clazz.getDeclaredFields();
         if(fields!= null) {
@@ -53,21 +56,13 @@ public abstract class AbstractDao<T> {
                 }
             }
         }
+        queryBuilder = new QueryBuilder(tableName, columns);
 
     }
 
 
     public boolean create(T entity) throws NoSuchFieldException, IllegalAccessException, SQLException {
-        StringBuffer sb = new StringBuffer();
-        sb.append("INSERT INTO ");
-        sb.append(tableName);
-        sb.append(" ( ");
-        addColumnsToQuery(sb);
-        sb.append(" )");
-        sb.append(" VALUES (");
-        addQuestionMarksToQuery(sb);
-        sb.append(")");
-        PreparedStatement ps = preparedStatement(sb.toString(),entity);
+        PreparedStatement ps = preparedStatement(queryBuilder.buildInsertQuery(),entity);
         boolean status = ps.execute();
         connection.commit();
         return status;
@@ -75,14 +70,7 @@ public abstract class AbstractDao<T> {
 
     public List<T> findByCriteria(Criteria[] criterias) throws SQLException, InvocationTargetException, NoSuchMethodException, NoSuchFieldException, InstantiationException, IllegalAccessException {
         ArrayList<T> results = new ArrayList<T>();
-        StringBuffer sb = new StringBuffer();
-        sb.append("SELECT ");
-        addColumnsToQuery(sb);
-        sb.append("FROM ");
-        sb.append(tableName);
-        sb.append(" ");
-        sb.append(QueryBuilder.buildWhereClause(criterias));
-        PreparedStatement preparedStatement = prepareStatement(sb.toString(),criterias);
+        PreparedStatement preparedStatement = prepareStatement(queryBuilder.buildSelectQuery(criterias),criterias);
         ResultSet resultSet = preparedStatement.executeQuery();
         while(resultSet.next()) {
             results.add(this.parseRecord(resultSet));
@@ -91,18 +79,18 @@ public abstract class AbstractDao<T> {
         return results;
     }
 
-    public int delete(Criteria[] criterias) throws SQLException {
-        if(criterias == null || criterias.length == 0 ) {
-            throw new IllegalArgumentException("Criterias have to be non null and  no  empty array for delete method");
+    public T findFirstByCriteria(Criteria[] criterias) throws NoSuchMethodException, InstantiationException, SQLException, IllegalAccessException, InvocationTargetException, NoSuchFieldException {
+        List<T> results = findByCriteria(criterias);
+        if(results.size()==0) {
+            return null;
+        } else {
+            return results.get(0);
         }
+    }
 
+    public int delete(Criteria[] criterias) throws SQLException {
         int countOfDeletedRecords = 0 ;
-        StringBuffer sb = new StringBuffer();
-        sb.append("DELETE FROM ");
-        sb.append(tableName);
-        sb.append(" ");
-        sb.append(QueryBuilder.buildWhereClause(criterias));
-        PreparedStatement ps = prepareStatement(sb.toString(), criterias);
+        PreparedStatement ps = prepareStatement(queryBuilder.buildDeleteQuery(criterias), criterias);
         countOfDeletedRecords =ps.executeUpdate();
         connection.commit();
         ps.close();
